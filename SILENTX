@@ -1,0 +1,336 @@
+-- ==========================================================
+-- 1. INICIALIZACIÓN DE PANDA AUTH (PUSL-V4)
+-- ==========================================================
+local PUSL = loadstring(game:HttpGet("https://secure.pandauth.com/pv4/lib"))()
+if not PUSL or type(PUSL.configure) ~= "function" then
+    return warn("[Panda] Library failed to initialize.")
+end
+
+PUSL.configure({
+    serviceId = "silentxhub",
+})
+
+-- ==========================================================
+-- 2. CONFIGURACIÓN Y RECURSOS
+-- ==========================================================
+local TweenService = game:GetService("TweenService")
+local SoundService = game:GetService("SoundService")
+local RunService = game:GetService("RunService")
+local CoreGui = game:GetService("CoreGui") or game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+
+-- URL de tu GUI de optimización alojada en GitHub Raw
+local OPTIMIZER_URL = "https://raw.githubusercontent.com/ricardzx43-alt/SilentX/refs/heads/main/SilentX.txt"
+
+-- Logo Personalizado
+local CustomLogoID = "rbxassetid://147149648" 
+
+local Colors = {
+    Background = Color3.fromRGB(10, 10, 14),
+    Surface = Color3.fromRGB(18, 18, 26),
+    NeonBlue = Color3.fromRGB(0, 229, 255),
+    NeonBlueHover = Color3.fromRGB(80, 240, 255),
+    Stroke = Color3.fromRGB(30, 30, 45),
+    TextPrimary = Color3.fromRGB(255, 255, 255),
+    TextSecondary = Color3.fromRGB(140, 150, 170),
+    Success = Color3.fromRGB(0, 255, 170),
+    Error = Color3.fromRGB(255, 70, 90)
+}
+
+local ClickSoundID = "rbxassetid://6895079853"
+local SuccessSoundID = "rbxassetid://6026982003"
+local ErrorSoundID = "rbxassetid://9069609200"
+
+local function PlaySound(soundId, volume)
+    task.spawn(function()
+        local sound = Instance.new("Sound")
+        sound.SoundId = soundId
+        sound.Volume = volume or 0.5
+        sound.Parent = SoundService
+        sound:Play()
+        sound.Ended:Connect(function()
+            sound:Destroy()
+        end)
+    end)
+end
+
+-- FUNCIÓN PARA CARGAR LA GUI DE OPTIMIZACIÓN DESDE GITHUB
+local function LoadMainScript()
+    print("[SilentX Hub] Key verificada. Cargando GUI de SilentX")
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "SilentX Hub",
+        Text = "Cargando interfaz de SilentX",
+        Duration = 5
+    })
+    
+    local success, err = pcall(function()
+        loadstring(game:HttpGet(OPTIMIZER_URL))()
+    end)
+
+    if not success then
+        warn("[SilentX Hub] Error al cargar desde GitHub: ", err)
+    end
+end
+
+-- ==========================================================
+-- 3. CONSTRUCCIÓN DE LA GUI
+-- ==========================================================
+if CoreGui:FindFirstChild("SilentXNeonKeySystem") then
+    CoreGui.SilentXNeonKeySystem:Destroy()
+end
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "SilentXNeonKeySystem"
+ScreenGui.Parent = CoreGui
+ScreenGui.ResetOnSpawn = false
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundColor3 = Colors.Background
+MainFrame.Position = UDim2.new(0.5, -200, 0.5, -145)
+MainFrame.Size = UDim2.new(0, 400, 0, 290)
+MainFrame.Active = true
+MainFrame.Draggable = true
+MainFrame.ClipsDescendants = true
+
+local MainCorner = Instance.new("UICorner")
+MainCorner.CornerRadius = UDim.new(0, 12)
+MainCorner.Parent = MainFrame
+
+local MainStroke = Instance.new("UIStroke")
+MainStroke.Thickness = 1.8
+MainStroke.Color = Colors.NeonBlue
+MainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+MainStroke.Parent = MainFrame
+
+-- Contenedor de Nieve
+local SnowContainer = Instance.new("Frame")
+SnowContainer.Name = "SnowContainer"
+SnowContainer.Parent = MainFrame
+SnowContainer.BackgroundTransparency = 1
+SnowContainer.Size = UDim2.new(1, 0, 1, 0)
+SnowContainer.ZIndex = 1
+
+-- Logo Personalizado
+local LogoImage = Instance.new("ImageLabel")
+LogoImage.Name = "LogoImage"
+LogoImage.Parent = MainFrame
+LogoImage.BackgroundTransparency = 1
+LogoImage.Position = UDim2.new(0.5, -32, 0, 14)
+LogoImage.Size = UDim2.new(0, 64, 0, 64)
+LogoImage.Image = CustomLogoID
+LogoImage.ScaleType = Enum.ScaleType.Fit
+LogoImage.ZIndex = 2
+
+-- Título
+local TitleLabel = Instance.new("TextLabel")
+TitleLabel.Parent = MainFrame
+TitleLabel.BackgroundTransparency = 1
+TitleLabel.Position = UDim2.new(0, 0, 0, 84)
+TitleLabel.Size = UDim2.new(1, 0, 0, 26)
+TitleLabel.Font = Enum.Font.GothamBold
+TitleLabel.RichText = true
+TitleLabel.Text = 'SILENT<font color="#00E5FF">X</font> HUB'
+TitleLabel.TextColor3 = Colors.TextPrimary
+TitleLabel.TextSize = 20
+TitleLabel.ZIndex = 2
+
+local TitleSub = Instance.new("TextLabel")
+TitleSub.Parent = MainFrame
+TitleSub.BackgroundTransparency = 1
+TitleSub.Position = UDim2.new(0, 0, 0, 108)
+TitleSub.Size = UDim2.new(1, 0, 0, 16)
+TitleSub.Font = Enum.Font.Gotham
+TitleSub.Text = "Sistema de Autenticación Premium"
+TitleSub.TextColor3 = Colors.TextSecondary
+TitleSub.TextSize = 11
+TitleSub.ZIndex = 2
+
+-- Input Box
+local InputFrame = Instance.new("Frame")
+InputFrame.Parent = MainFrame
+InputFrame.BackgroundColor3 = Colors.Surface
+InputFrame.Position = UDim2.new(0.08, 0, 0.49, 0)
+InputFrame.Size = UDim2.new(0.84, 0, 0, 38)
+InputFrame.ZIndex = 2
+
+local InputCorner = Instance.new("UICorner")
+InputCorner.CornerRadius = UDim.new(0, 8)
+InputCorner.Parent = InputFrame
+
+local InputStroke = Instance.new("UIStroke")
+InputStroke.Thickness = 1
+InputStroke.Color = Colors.Stroke
+InputStroke.Parent = InputFrame
+
+local KeyTextBox = Instance.new("TextBox")
+KeyTextBox.Parent = InputFrame
+KeyTextBox.BackgroundTransparency = 1
+KeyTextBox.Position = UDim2.new(0, 12, 0, 0)
+KeyTextBox.Size = UDim2.new(1, -24, 1, 0)
+KeyTextBox.Font = Enum.Font.GothamMedium
+KeyTextBox.PlaceholderText = "Pega tu Key de 24h aquí..."
+KeyTextBox.PlaceholderColor3 = Color3.fromRGB(90, 100, 115)
+KeyTextBox.Text = ""
+KeyTextBox.TextColor3 = Colors.TextPrimary
+KeyTextBox.TextSize = 12
+KeyTextBox.ClearTextOnFocus = false
+KeyTextBox.ZIndex = 3
+
+local StatusLabel = Instance.new("TextLabel")
+StatusLabel.Parent = MainFrame
+StatusLabel.BackgroundTransparency = 1
+StatusLabel.Position = UDim2.new(0, 0, 0.65, 0)
+StatusLabel.Size = UDim2.new(1, 0, 0, 18)
+StatusLabel.Font = Enum.Font.Gotham
+StatusLabel.Text = ""
+StatusLabel.TextColor3 = Colors.TextSecondary
+StatusLabel.TextSize = 11
+StatusLabel.ZIndex = 2
+
+-- Botones
+local GetKeyBtn = Instance.new("TextButton")
+GetKeyBtn.Parent = MainFrame
+GetKeyBtn.BackgroundColor3 = Colors.Surface
+GetKeyBtn.Position = UDim2.new(0.08, 0, 0.75, 0)
+GetKeyBtn.Size = UDim2.new(0.40, 0, 0, 38)
+GetKeyBtn.Font = Enum.Font.GothamBold
+GetKeyBtn.Text = "GET KEY"
+GetKeyBtn.TextColor3 = Colors.TextPrimary
+GetKeyBtn.TextSize = 12
+GetKeyBtn.AutoButtonColor = false
+GetKeyBtn.ZIndex = 2
+
+local GetCorner = Instance.new("UICorner")
+GetCorner.CornerRadius = UDim.new(0, 8)
+GetCorner.Parent = GetKeyBtn
+
+local GetStroke = Instance.new("UIStroke")
+GetStroke.Thickness = 1
+GetStroke.Color = Colors.Stroke
+GetStroke.Parent = GetKeyBtn
+
+local VerifyBtn = Instance.new("TextButton")
+VerifyBtn.Parent = MainFrame
+VerifyBtn.BackgroundColor3 = Colors.NeonBlue
+VerifyBtn.Position = UDim2.new(0.52, 0, 0.75, 0)
+VerifyBtn.Size = UDim2.new(0.40, 0, 0, 38)
+VerifyBtn.Font = Enum.Font.GothamBold
+VerifyBtn.Text = "VERIFY KEY"
+VerifyBtn.TextColor3 = Colors.Background
+VerifyBtn.TextSize = 12
+VerifyBtn.AutoButtonColor = false
+VerifyBtn.ZIndex = 2
+
+local VerifyCorner = Instance.new("UICorner")
+VerifyCorner.CornerRadius = UDim.new(0, 8)
+VerifyCorner.Parent = VerifyBtn
+
+-- ==========================================================
+-- 4. EFECTO VISUAL DE NIEVE
+-- ==========================================================
+local Flakes = {}
+local MaxFlakes = 20
+
+for i = 1, MaxFlakes do
+    local flake = Instance.new("Frame")
+    flake.Name = "Flake"
+    flake.Parent = SnowContainer
+    flake.BackgroundColor3 = Color3.fromRGB(220, 248, 255)
+    flake.BorderSizePixel = 0
+    flake.ZIndex = 1
+    
+    local size = math.random(2, 4)
+    flake.Size = UDim2.new(0, size, 0, size)
+    
+    local flakeCorner = Instance.new("UICorner")
+    flakeCorner.CornerRadius = UDim.new(1, 0)
+    flakeCorner.Parent = flake
+    
+    local startX = math.random(10, 380)
+    local startY = math.random(-290, 0)
+    flake.Position = UDim2.new(0, startX, 0, startY)
+    
+    table.insert(Flakes, {
+        Frame = flake,
+        Speed = math.random(25, 55),
+        BaseX = startX,
+        OffsetY = startY,
+        Seed = math.random(1, 100)
+    })
+end
+
+local snowConnection
+snowConnection = RunService.RenderStepped:Connect(function(dt)
+    if not MainFrame or not MainFrame.Parent then
+        snowConnection:Disconnect()
+        return
+    end
+    
+    for _, data in ipairs(Flakes) do
+        data.OffsetY = data.OffsetY + (data.Speed * dt)
+        local swayX = data.BaseX + math.sin(tick() * 2 + data.Seed) * 10
+        
+        data.Frame.Position = UDim2.new(0, swayX, 0, data.OffsetY)
+        
+        if data.OffsetY >= 290 then
+            data.OffsetY = -10
+            data.BaseX = math.random(10, 380)
+        end
+    end
+end)
+
+-- ==========================================================
+-- 5. ACCIONES Y EVENTOS
+-- ==========================================================
+GetKeyBtn.MouseButton1Click:Connect(function()
+    PlaySound(ClickSoundID, 0.5)
+    local getKeyUrl = PUSL.getKeyUrl() or "https://ads.pandauth.com/getkey/silentxhub"
+    if setclipboard then
+        setclipboard(getKeyUrl)
+        StatusLabel.Text = "¡Enlace copiado al portapapeles!"
+        StatusLabel.TextColor3 = Colors.NeonBlue
+    else
+        StatusLabel.Text = "Tu ejecutor no soporta setclipboard."
+        StatusLabel.TextColor3 = Colors.Error
+    end
+end)
+
+local Validating = false
+VerifyBtn.MouseButton1Click:Connect(function()
+    if Validating then return end
+    Validating = true
+    
+    PlaySound(ClickSoundID, 0.5)
+    local userKey = KeyTextBox.Text
+    
+    if userKey == "" then
+        PlaySound(ErrorSoundID, 0.5)
+        StatusLabel.Text = "Por favor ingresa tu Key."
+        StatusLabel.TextColor3 = Colors.Error
+        Validating = false
+        return
+    end
+
+    StatusLabel.Text = "Verificando..."
+    StatusLabel.TextColor3 = Colors.TextSecondary
+
+    task.spawn(function()
+        local result = PUSL.validate(userKey)
+        if result and result.success then
+            PlaySound(SuccessSoundID, 0.6)
+            StatusLabel.Text = "¡Autenticación Exitosa!"
+            StatusLabel.TextColor3 = Colors.Success
+            task.wait(1.2)
+            ScreenGui:Destroy()
+            
+            -- Llama a la carga remota de la GUI de optimización
+            LoadMainScript()
+        else
+            PlaySound(ErrorSoundID, 0.5)
+            StatusLabel.Text = "Key inválida o expirada."
+            StatusLabel.TextColor3 = Colors.Error
+            Validating = false
+        end
+    end)
+end)
